@@ -1,5 +1,12 @@
 {
   "name": "sample-dapp",
   "packageManager": "yarn@4.3.1",
-  "private": true
+  "private": true,
+  "dependencies": {
+    "@aztec/accounts": "^0.51.1",
+    "@aztec/aztec.js": "^0.51.1"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0"
+  }
 }

@@ -1,5 +1,6 @@
 import { createPXEClient, Fr, computeSecretHash, ExtendedNote, Note } from '@aztec/aztec.js';
-import { getToken } from './contracts.mjs';
+// import { getToken } from './contracts.mjs';
+import { TokenContractArtifact, TokenContract } from "@aztec/noir-contracts.js/Token";
 import { getInitialTestAccountsWallets } from '@aztec/accounts/testing';
 
 // console.debug(process.env);
@@ -12,11 +13,14 @@ async function main() {
   console.log(`Connected to chain ${l1ChainId}`);
 
   const accounts = await pxe.getRegisteredAccounts();
-  const token = await getToken(pxe);
 
   const [ownerWallet] = await getInitialTestAccountsWallets(pxe);
+
+  let tokenOwned = await TokenContract.deploy(ownerWallet, ownerWallet.getAddress(), 'TestToken', 'TT', 18).send().deployed();
+
+  console.log(`Owner address: ${ownerWallet.getAddress()}`);
   const ownerAddress = ownerWallet.getAddress(); //.getCompleteAddress();
-  const tokenOwned = await getToken(ownerWallet);
+  // const tokenOwned = await getToken(ownerWallet);
 
   // const showPublicBalances = async () => {
   //   for (const account of accounts) {
@@ -33,7 +37,7 @@ async function main() {
   const secret = Fr.random();
   const secretHashed = computeSecretHash(secret);
   // console.debug(tokenOwned.artifact.storageLayout['pending_shields'].slot)
-  const receipt = 
+  const receipt =
     await tokenOwned.methods.mint_private(mintAmount, secretHashed).send().wait();
   console.debug(await pxe.getOutgoingNotes({}));
   const insertion = new ExtendedNote(
@@ -48,19 +52,18 @@ async function main() {
   try {
     await ownerWallet.addNote(insertion);
     console.debug("Note added")
-  } catch(e) {console.error(e);}
+  } catch (e) { console.error(e); }
   console.debug(await pxe.getOutgoingNotes({}));
   await tokenOwned.methods
     .redeem_shield(ownerAddress, mintAmount, secret).send().wait();
   console.debug("**not** HERE")
-  
+
   // console.log(`User accounts:\n${accounts.map(a => "* " + a.address).join('\n')}`);
   console.log(`Balances\n=====`);
   accounts.forEach(async a => {
     let adr = a.address;
-    console.log(`${
-      await token.methods.balance_of_private(adr).simulate()
-    } | ${adr}`);
+    console.log(`${await tokenOwned.methods.balance_of_private(adr).simulate()
+      } | ${adr}`);
   });
 }
 

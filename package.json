@@ -3,8 +3,9 @@
   "packageManager": "yarn@4.3.1",
   "private": true,
   "dependencies": {
-    "@aztec/accounts": "^0.51.1",
-    "@aztec/aztec.js": "^0.51.1"
+    "@aztec/accounts": "^0.54.0",
+    "@aztec/aztec.js": "^0.54.0",
+    "@aztec/noir-contracts.js": "^0.54.0"
   },
   "devDependencies": {
     "jest": "^29.7.0"
